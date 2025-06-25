@@ -6,7 +6,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
 });
 
-// Define a type for each cart item expected in the request
 interface CartItem {
   priceId: string;
   quantity: number;
@@ -33,8 +32,8 @@ export async function POST(request: Request) {
         price: item.priceId,
         quantity: item.quantity,
       })),
-      success_url: `${process.env.NEXT_PUBLIC_URL}/success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_URL}/cancel`,
+      success_url: `https://coffee-cart-akczqdw61-kais-projects-0b9109dd.vercel.app/success`,
+      cancel_url: `https://coffee-cart-akczqdw61-kais-projects-0b9109dd.vercel.app/cancel`,
     });
 
     return new Response(
