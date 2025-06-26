@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import ProductList from './components/ProductList';
+import Cart from './components/Cart';  // <-- Import Cart component here
 
 type Product = {
   id: string;
@@ -21,7 +22,7 @@ export default function Home() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const [deliveryMethod, setDeliveryMethod] = useState<'ship' | 'pickup'>('ship'); // NEW
+  const [deliveryMethod, setDeliveryMethod] = useState<'ship' | 'pickup'>('ship');
 
   useEffect(() => {
     async function fetchProducts() {
@@ -45,7 +46,7 @@ export default function Home() {
         return [...prevCart, { ...product, quantity }];
       }
     });
-    setShowCart(true); 
+    setShowCart(true);
   }
 
   function handleUpdateQuantity(productId: string, quantity: number) {
@@ -79,7 +80,7 @@ export default function Home() {
             priceId: item.priceId,
             quantity: item.quantity,
           })),
-          deliveryMethod,  // ✅ Send delivery method!
+          deliveryMethod,  // <-- Send delivery method here
         }),
       });
 
@@ -111,6 +112,7 @@ export default function Home() {
         </button>
       </div>
 
+      {/* Delivery Method Selection */}
       <div className="px-4 py-2">
         <label className="mr-4">
           <input
