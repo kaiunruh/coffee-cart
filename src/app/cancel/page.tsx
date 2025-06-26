@@ -1,11 +1,15 @@
+// src/app/cancel/page.tsx
+import Link from 'next/link';
+
 export default function CancelPage() {
   return (
-    <div style={{ textAlign: 'center', padding: '2rem' }}>
-      <h1>❌ Payment Canceled</h1>
-      <p>You canceled the checkout process.</p>
-      <a href="/" style={{ color: '#0070f3', textDecoration: 'underline' }}>
-        Return to Home
-      </a>
+    <div className="text-center mt-10">
+      <h1 className="text-3xl font-bold">Your order was cancelled</h1>
+      <p className="mt-4">
+        <Link href="/">
+          <span className="text-blue-500 underline">Return to home</span>
+        </Link>
+      </p>
     </div>
   );
 }
