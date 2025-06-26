@@ -9,16 +9,18 @@ interface CartItem {
   quantity: number;
 }
 
+interface CheckoutRequest {
+  cartItems: CartItem[];
+  deliveryMethod: 'ship' | 'pickup';
+}
+
 export async function POST(request: Request) {
-  const { cartItems } = await request.json() as { cartItems: CartItem[] };
+  const { cartItems, deliveryMethod } = await request.json() as CheckoutRequest;
 
   if (!cartItems || cartItems.length === 0) {
     return new Response(
       JSON.stringify({ error: 'Cart is empty' }),
-      {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      }
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
@@ -26,35 +28,37 @@ export async function POST(request: Request) {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
-      line_items: cartItems.map((item: CartItem) => ({
+      line_items: cartItems.map((item) => ({
         price: item.priceId,
         quantity: item.quantity,
       })),
       success_url: `https://coffee-cart-akczqdw61-kais-projects-0b9109dd.vercel.app/success`,
       cancel_url: `https://coffee-cart-akczqdw61-kais-projects-0b9109dd.vercel.app/cancel`,
+      
+      // If deliveryMethod is "ship", Stripe will require shipping address at checkout
+      ...(deliveryMethod === 'ship' && {
+        shipping_address_collection: {
+          allowed_countries: ['US'],
+        },
+      }),
 
-      // ✅ Shipping address only
-      shipping_address_collection: {
-        allowed_countries: ['US'], // Add more if needed (e.g., 'CA', 'GB')
+      // Useful for later tracking in Stripe Dashboard / webhooks
+      metadata: {
+        delivery_method: deliveryMethod
       },
     });
 
     return new Response(
       JSON.stringify({ url: session.url }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (err: unknown) {
     console.error('Stripe error:', err);
     const message = err instanceof Error ? err.message : 'Unknown error';
     return new Response(
       JSON.stringify({ error: message }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }
+
