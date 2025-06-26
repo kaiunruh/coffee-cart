@@ -1,5 +1,3 @@
-// src/app/api/create-checkout/route.ts
-
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -34,6 +32,11 @@ export async function POST(request: Request) {
       })),
       success_url: `https://coffee-cart-akczqdw61-kais-projects-0b9109dd.vercel.app/success`,
       cancel_url: `https://coffee-cart-akczqdw61-kais-projects-0b9109dd.vercel.app/cancel`,
+
+      // ✅ Shipping address only
+      shipping_address_collection: {
+        allowed_countries: ['US'], // Add more if needed (e.g., 'CA', 'GB')
+      },
     });
 
     return new Response(
