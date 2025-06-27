@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import ProductList from './components/ProductList';
-import Cart from './components/Cart'; // ✅ Add this import!
+import Cart from './components/Cart';
 
 type Product = {
   id: string;
@@ -112,32 +112,11 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="px-4 py-2">
-        <label className="mr-4">
-          <input
-            type="radio"
-            name="delivery"
-            value="ship"
-            checked={deliveryMethod === 'ship'}
-            onChange={() => setDeliveryMethod('ship')}
-          />{' '}
-          Ship
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="delivery"
-            value="pickup"
-            checked={deliveryMethod === 'pickup'}
-            onChange={() => setDeliveryMethod('pickup')}
-          />{' '}
-          Pickup
-        </label>
-      </div>
+      {/* Removed delivery method UI from here */}
 
       <ProductList products={products} onAddToCart={handleAddToCart} />
 
-      {/* ✅ Add the Cart component */}
+      {/* Pass delivery method state and setter to Cart */}
       <Cart
         cart={cart}
         show={showCart}
@@ -146,6 +125,8 @@ export default function Home() {
         onRemove={handleRemove}
         onCheckout={handleCheckout}
         isCheckingOut={isCheckingOut}
+        deliveryMethod={deliveryMethod}
+        setDeliveryMethod={setDeliveryMethod}
       />
     </main>
   );
