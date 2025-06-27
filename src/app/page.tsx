@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import ProductList from './components/ProductList';
-import Cart from './components/Cart';  // <-- Import Cart component here
 
 type Product = {
   id: string;
@@ -138,15 +137,6 @@ export default function Home() {
 
       <ProductList products={products} onAddToCart={handleAddToCart} />
 
-      <Cart
-        cart={cart}
-        show={showCart}
-        onClose={() => setShowCart(false)}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemove={handleRemove}
-        onCheckout={handleCheckout}
-        isCheckingOut={isCheckingOut}
-      />
     </main>
   );
 }
