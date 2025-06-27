@@ -1,132 +1,117 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import ProductList from './components/ProductList';
-import Cart from './components/Cart';
+import React from 'react';
 
-type Product = {
+type CartItem = {
   id: string;
   name: string;
-  description: string | null;
-  images: string[];
-  priceId: string;
   price: number;
-};
-
-type CartItem = Product & {
   quantity: number;
 };
 
-export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [showCart, setShowCart] = useState(false);
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const [deliveryMethod, setDeliveryMethod] = useState<'ship' | 'pickup'>('ship');
+type CartProps = {
+  cart: CartItem[];
+  show: boolean;
+  onClose: () => void;
+  onUpdateQuantity: (id: string, quantity: number) => void;
+  onRemove: (id: string) => void;
+  onCheckout: () => void;
+  isCheckingOut: boolean;
+  deliveryMethod: 'ship' | 'pickup';
+  setDeliveryMethod: React.Dispatch<React.SetStateAction<'ship' | 'pickup'>>;
+};
 
-  useEffect(() => {
-    async function fetchProducts() {
-      const res = await fetch('/api/products');
-      const data = await res.json();
-      setProducts(data.products);
-    }
-    fetchProducts();
-  }, []);
-
-  function handleAddToCart(product: Product, quantity: number = 1) {
-    setCart((prevCart) => {
-      const existing = prevCart.find((item) => item.id === product.id);
-      if (existing) {
-        return prevCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      } else {
-        return [...prevCart, { ...product, quantity }];
-      }
-    });
-    setShowCart(true);
-  }
-
-  function handleUpdateQuantity(productId: string, quantity: number) {
-    setCart((prevCart) => {
-      if (quantity <= 0) {
-        return prevCart.filter((item) => item.id !== productId);
-      }
-      return prevCart.map((item) =>
-        item.id === productId ? { ...item, quantity } : item
-      );
-    });
-  }
-
-  function handleRemove(productId: string) {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
-  }
-
-  async function handleCheckout() {
-    if (cart.length === 0) return;
-
-    setIsCheckingOut(true);
-
-    try {
-      const res = await fetch('/api/create-checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          cartItems: cart.map((item) => ({
-            priceId: item.priceId,
-            quantity: item.quantity,
-          })),
-          deliveryMethod,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        console.error('Checkout error:', data.error);
-        alert('Something went wrong during checkout.');
-      }
-    } catch (err) {
-      console.error('Checkout error:', err);
-      alert('Something went wrong. Please try again.');
-    } finally {
-      setIsCheckingOut(false);
-    }
-  }
+export default function Cart({
+  cart,
+  show,
+  onClose,
+  onUpdateQuantity,
+  onRemove,
+  onCheckout,
+  isCheckingOut,
+  deliveryMethod,
+  setDeliveryMethod,
+}: CartProps) {
+  if (!show) return null;
 
   return (
-    <main className="relative">
-      <div className="flex justify-between items-center px-4 py-4">
-        <h1 className="text-2xl font-bold">Coffee</h1>
-        <button
-          onClick={() => setShowCart(!showCart)}
-          className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
-        >
-          Cart ({cart.reduce((sum, item) => sum + item.quantity, 0)})
+    <div className="fixed top-0 right-0 w-80 h-full bg-white shadow-lg p-4 overflow-y-auto z-50">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-bold">Your Cart</h2>
+        <button onClick={onClose} className="text-sm text-gray-500 hover:text-black">
+          Close
         </button>
       </div>
 
-      {/* Delivery method UI removed from here */}
+      {cart.length === 0 ? (
+        <p className="text-sm text-gray-500">Your cart is empty.</p>
+      ) : (
+        <>
+          {cart.map((item) => (
+            <div key={item.id} className="border-b pb-2 mb-2">
+              <div className="flex justify-between">
+                <div>
+                  <p className="font-semibold">{item.name}</p>
+                  <p className="text-sm">${(item.price / 100).toFixed(2)} x {item.quantity}</p>
+                </div>
+                <button
+                  onClick={() => onRemove(item.id)}
+                  className="text-sm text-red-500 hover:underline"
+                >
+                  Remove
+                </button>
+              </div>
+              <div className="flex gap-2 mt-1">
+                <button
+                  onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                  className="px-2 py-1 border rounded"
+                >
+                  -
+                </button>
+                <button
+                  onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                  className="px-2 py-1 border rounded"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          ))}
 
-      <ProductList products={products} onAddToCart={handleAddToCart} />
+          {/* Delivery method UI */}
+          <div className="my-4">
+            <h3 className="font-semibold mb-2">Delivery Method</h3>
+            <label className="mr-4">
+              <input
+                type="radio"
+                name="delivery"
+                value="ship"
+                checked={deliveryMethod === 'ship'}
+                onChange={() => setDeliveryMethod('ship')}
+              />{' '}
+              Ship
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="delivery"
+                value="pickup"
+                checked={deliveryMethod === 'pickup'}
+                onChange={() => setDeliveryMethod('pickup')}
+              />{' '}
+              Pickup
+            </label>
+          </div>
 
-      <Cart
-        cart={cart}
-        show={showCart}
-        onClose={() => setShowCart(false)}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemove={handleRemove}
-        onCheckout={handleCheckout}
-        isCheckingOut={isCheckingOut}
-        deliveryMethod={deliveryMethod}               // Pass deliveryMethod
-        setDeliveryMethod={setDeliveryMethod}         // Pass setter
-      />
-    </main>
+          <button
+            onClick={onCheckout}
+            disabled={isCheckingOut}
+            className="w-full mt-4 bg-black text-white py-2 rounded hover:bg-gray-800"
+          >
+            {isCheckingOut ? 'Processing...' : 'Checkout'}
+          </button>
+        </>
+      )}
+    </div>
   );
 }
