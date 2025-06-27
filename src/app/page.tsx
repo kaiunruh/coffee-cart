@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import ProductList from './components/ProductList';
+import Cart from './components/Cart'; // ✅ Add this import!
 
 type Product = {
   id: string;
@@ -79,7 +80,7 @@ export default function Home() {
             priceId: item.priceId,
             quantity: item.quantity,
           })),
-          deliveryMethod,  // <-- Send delivery method here
+          deliveryMethod,
         }),
       });
 
@@ -111,7 +112,6 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Delivery Method Selection */}
       <div className="px-4 py-2">
         <label className="mr-4">
           <input
@@ -137,6 +137,16 @@ export default function Home() {
 
       <ProductList products={products} onAddToCart={handleAddToCart} />
 
+      {/* ✅ Add the Cart component */}
+      <Cart
+        cart={cart}
+        show={showCart}
+        onClose={() => setShowCart(false)}
+        onUpdateQuantity={handleUpdateQuantity}
+        onRemove={handleRemove}
+        onCheckout={handleCheckout}
+        isCheckingOut={isCheckingOut}
+      />
     </main>
   );
 }
