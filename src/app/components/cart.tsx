@@ -5,16 +5,16 @@ import React from 'react';
 type CartItem = {
   id: string;
   name: string;
-  quantity: number;
   price: number;
+  quantity: number;
 };
 
 type CartProps = {
   cart: CartItem[];
   show: boolean;
   onClose: () => void;
-  onUpdateQuantity: (productId: string, quantity: number) => void;
-  onRemove: (productId: string) => void;
+  onUpdateQuantity: (id: string, quantity: number) => void;
+  onRemove: (id: string) => void;
   onCheckout: () => void;
   isCheckingOut: boolean;
 };
@@ -28,82 +28,59 @@ export default function Cart({
   onCheckout,
   isCheckingOut,
 }: CartProps) {
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  if (!show) return null;
 
   return (
-    <div
-      className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg transform transition-transform duration-300 z-50 ${
-        show ? 'translate-x-0' : 'translate-x-full'
-      }`}
-    >
-      <div className="flex justify-between items-center p-4 border-b">
+    <div className="fixed top-0 right-0 w-80 h-full bg-white shadow-lg p-4 overflow-y-auto z-50">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold">Your Cart</h2>
-        <button onClick={onClose} className="text-xl font-bold">
-          &times;
-        </button>
+        <button onClick={onClose} className="text-sm text-gray-500 hover:text-black">Close</button>
       </div>
 
-      <div className="p-4 overflow-y-auto max-h-[70vh]">
-        {cart.length === 0 ? (
-          <p className="text-sm text-gray-600">Your cart is empty.</p>
-        ) : (
-          <ul className="space-y-4">
-            {cart.map((item) => (
-              <li key={item.id} className="flex flex-col border-b pb-2">
-                <div className="font-medium">{item.name}</div>
-                <div className="flex items-center justify-between mt-1">
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() =>
-                        onUpdateQuantity(item.id, item.quantity - 1)
-                      }
-                      disabled={item.quantity <= 1}
-                      className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                    >
-                      -
-                    </button>
-                    <span>{item.quantity}</span>
-                    <button
-                      onClick={() =>
-                        onUpdateQuantity(item.id, item.quantity + 1)
-                      }
-                      className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                    >
-                      +
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => onRemove(item.id)}
-                    className="text-red-600 text-sm"
-                  >
-                    Remove
-                  </button>
+      {cart.length === 0 ? (
+        <p className="text-sm text-gray-500">Your cart is empty.</p>
+      ) : (
+        <>
+          {cart.map((item) => (
+            <div key={item.id} className="border-b pb-2 mb-2">
+              <div className="flex justify-between">
+                <div>
+                  <p className="font-semibold">{item.name}</p>
+                  <p className="text-sm">${(item.price / 100).toFixed(2)} x {item.quantity}</p>
                 </div>
-                <div className="text-right text-sm text-gray-700 mt-1">
-                  ${(item.price * item.quantity / 100).toFixed(2)}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                <button
+                  onClick={() => onRemove(item.id)}
+                  className="text-sm text-red-500 hover:underline"
+                >
+                  Remove
+                </button>
+              </div>
+              <div className="flex gap-2 mt-1">
+                <button
+                  onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                  className="px-2 py-1 border rounded"
+                >
+                  -
+                </button>
+                <button
+                  onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                  className="px-2 py-1 border rounded"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          ))}
 
-      <div className="p-4 border-t">
-        <p className="font-semibold mb-2">
-          Total: ${(total / 100).toFixed(2)}
-        </p>
-        <button
-          onClick={onCheckout}
-          disabled={cart.length === 0 || isCheckingOut}
-          className={`w-full py-2 rounded transition ${
-            cart.length === 0 || isCheckingOut
-              ? 'bg-gray-300 cursor-not-allowed'
-              : 'bg-black text-white hover:bg-gray-900'
-          }`}
-        >
-          {isCheckingOut ? 'Processing...' : 'Checkout'}
-        </button>
-      </div>
+          <button
+            onClick={onCheckout}
+            disabled={isCheckingOut}
+            className="w-full mt-4 bg-black text-white py-2 rounded hover:bg-gray-800"
+          >
+            {isCheckingOut ? 'Processing...' : 'Checkout'}
+          </button>
+        </>
+      )}
     </div>
   );
 }
