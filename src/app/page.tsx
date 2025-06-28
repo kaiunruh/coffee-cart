@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import FcmTokenFetcher from './components/FcmTokenFetcher';
 import ProductList from './components/ProductList';
 import Cart from './components/Cart';
 
@@ -100,6 +101,7 @@ export default function Home() {
 
   return (
     <main className="relative bg-white text-black dark:bg-black dark:text-white min-h-screen">
+      <FcmTokenFetcher />
       <div className="flex justify-between items-center px-4 py-4">
         <h1 className="text-2xl font-bold">Coffee</h1>
         <button

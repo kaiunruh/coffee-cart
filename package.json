@@ -9,7 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "firebase": "^11.9.1",
+    "googleapis": "^150.0.1",
     "next": "15.3.4",
+    "raw-body": "^3.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "stripe": "^18.2.1"
@@ -17,7 +20,9 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/firebase": "^2.4.32",
     "@types/node": "^20",
+    "@types/raw-body": "^2.1.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
