@@ -39,7 +39,10 @@ export default function ProductList({ products, onAddToCart }: ProductListProps)
               style={{ borderRadius: '0.375rem' }}
             />
           )}
-          <h2 className="font-semibold text-md mb-1 text-center dark:text-white text-black">
+          <h2
+            className="font-semibold text-md mb-1 text-center dark:text-white text-black break-words"
+            style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+          >
             {product.name}
           </h2>
           <p className="text-xs mb-3 text-center line-clamp-2 text-gray-600 dark:text-gray-300">
@@ -59,3 +62,4 @@ export default function ProductList({ products, onAddToCart }: ProductListProps)
     </div>
   );
 }
+
