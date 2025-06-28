@@ -23,25 +23,31 @@ export default function ProductList({ products, onAddToCart }: ProductListProps)
       {products.map((product) => (
         <div
           key={product.id}
-          className="rounded p-3 flex flex-col items-center bg-white bg-opacity-60 shadow-sm"
+          className="rounded p-3 flex flex-col items-center 
+                     bg-white bg-opacity-60 dark:bg-gray-900 dark:bg-opacity-70
+                     shadow-sm"
           style={{ border: '1px solid transparent' }}
         >
           {product.images.length > 0 && (
             <Image
               src={product.images[0]}
               alt={product.name}
-              width={112}    // same as w-28 (28 * 4px)
-              height={112}   // same as h-28
+              width={112}
+              height={112}
               className="mb-3 rounded object-cover"
               priority={false}
-              style={{ borderRadius: '0.375rem' }} // rounded corners
+              style={{ borderRadius: '0.375rem' }}
             />
           )}
-          <h2 className="font-semibold text-md mb-1 text-center">{product.name}</h2>
-          <p className="text-xs text-gray-600 mb-3 text-center line-clamp-2">
+          <h2 className="font-semibold text-md mb-1 text-center dark:text-white text-black">
+            {product.name}
+          </h2>
+          <p className="text-xs mb-3 text-center line-clamp-2 text-gray-600 dark:text-gray-300">
             {product.description}
           </p>
-          <p className="font-semibold mb-3">${(product.price / 100).toFixed(2)}</p>
+          <p className="font-semibold mb-3 dark:text-white text-black">
+            ${(product.price / 100).toFixed(2)}
+          </p>
           <button
             onClick={() => onAddToCart(product)}
             className="bg-black text-white px-4 py-1 rounded hover:bg-gray-800 transition text-sm"
