@@ -35,20 +35,20 @@ export default function Cart({
   if (!show) return null;
 
   return (
-    <div className="fixed top-0 right-0 w-80 h-full bg-white shadow-lg p-4 overflow-y-auto z-50">
+    <div className="fixed top-0 right-0 w-80 h-full bg-white text-black dark:bg-gray-900 dark:text-white shadow-lg p-4 overflow-y-auto z-50">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold">Your Cart</h2>
-        <button onClick={onClose} className="text-sm text-gray-500 hover:text-black">
+        <button onClick={onClose} className="text-sm text-gray-500 hover:text-black dark:text-gray-300 dark:hover:text-white">
           Close
         </button>
       </div>
 
       {cart.length === 0 ? (
-        <p className="text-sm text-gray-500">Your cart is empty.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Your cart is empty.</p>
       ) : (
         <>
           {cart.map((item) => (
-            <div key={item.id} className="border-b pb-2 mb-2">
+            <div key={item.id} className="border-b border-gray-300 dark:border-gray-700 pb-2 mb-2">
               <div className="flex justify-between">
                 <div>
                   <p className="font-semibold">{item.name}</p>
@@ -64,13 +64,13 @@ export default function Cart({
               <div className="flex gap-2 mt-1">
                 <button
                   onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                  className="px-2 py-1 border rounded"
+                  className="px-2 py-1 border border-gray-400 dark:border-gray-600 rounded"
                 >
                   -
                 </button>
                 <button
                   onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                  className="px-2 py-1 border rounded"
+                  className="px-2 py-1 border border-gray-400 dark:border-gray-600 rounded"
                 >
                   +
                 </button>
@@ -106,7 +106,7 @@ export default function Cart({
           <button
             onClick={onCheckout}
             disabled={isCheckingOut}
-            className="w-full mt-4 bg-black text-white py-2 rounded hover:bg-gray-800"
+            className="w-full mt-4 bg-black text-white py-2 rounded hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-300"
           >
             {isCheckingOut ? 'Processing...' : 'Checkout'}
           </button>

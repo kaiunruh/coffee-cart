@@ -112,6 +112,10 @@ export default function Home() {
         </button>
       </div>
 
+      <div className="px-4 py-2 text-black dark:text-white">
+        <p className="text-base">Browse our selection of fresh coffee below.</p>
+      </div>
+
       <ProductList products={products} onAddToCart={handleAddToCart} />
 
       <Cart
