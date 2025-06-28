@@ -25,24 +25,56 @@ export async function POST(request: Request) {
   }
 
   try {
+    // --- Calculate shipping ---
+    let shippingLineItem = null;
+
+    if (deliveryMethod === 'ship') {
+      const totalBags = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+      let shippingCost = 0;
+
+      if (totalBags >= 1 && totalBags <= 4) {
+        shippingCost = 1000; // $10.00 in cents
+      } else if (totalBags >= 5 && totalBags <= 8) {
+        shippingCost = 1200; // $12.00 in cents
+      } else {
+        shippingCost = 1500; // Optional: flat $15.00 for 9+
+      }
+
+      shippingLineItem = {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: 'Shipping',
+          },
+          unit_amount: shippingCost,
+        },
+        quantity: 1,
+      };
+    }
+
+    // --- Build session ---
+    const lineItems = cartItems.map((item) => ({
+      price: item.priceId,
+      quantity: item.quantity,
+    }));
+
+    if (shippingLineItem) {
+      lineItems.push(shippingLineItem);
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
-      line_items: cartItems.map((item) => ({
-        price: item.priceId,
-        quantity: item.quantity,
-      })),
+      line_items: lineItems,
       success_url: `https://coffee-cart-akczqdw61-kais-projects-0b9109dd.vercel.app/success`,
       cancel_url: `https://coffee-cart-akczqdw61-kais-projects-0b9109dd.vercel.app/cancel`,
       
-      // If deliveryMethod is "ship", Stripe will require shipping address at checkout
       ...(deliveryMethod === 'ship' && {
         shipping_address_collection: {
           allowed_countries: ['US'],
         },
       }),
 
-      // Useful for later tracking in Stripe Dashboard / webhooks
       metadata: {
         delivery_method: deliveryMethod
       },
@@ -52,6 +84,7 @@ export async function POST(request: Request) {
       JSON.stringify({ url: session.url }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
+
   } catch (err: unknown) {
     console.error('Stripe error:', err);
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -61,4 +94,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
 
