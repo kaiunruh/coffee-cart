@@ -2,24 +2,30 @@ import Stripe from 'stripe';
 import { NextResponse } from 'next/server';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-05-28.basil', // adjust to your Stripe version
+  apiVersion: '2025-05-28.basil',
 });
+
+type CartItem = {
+  priceId: string;
+  quantity: number;
+};
 
 export async function POST(request: Request) {
   try {
-    const { cartItems, deliveryMethod } = await request.json();
+    const body = await request.json();
+    const cartItems: CartItem[] = body.cartItems;
+    const deliveryMethod: 'ship' | 'pickup' = body.deliveryMethod;
 
-    // Validate input
-    if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
+    if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ error: 'No cart items provided' }, { status: 400 });
     }
 
-    // Calculate shipping cost based on total bags (quantities)
+    // Calculate total quantity for shipping cost
+    const totalBags = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
     let shippingLineItem: Stripe.Checkout.SessionCreateParams.LineItem | null = null;
 
     if (deliveryMethod === 'ship') {
-      const totalBags = cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0);
-
       let shippingCost = 0;
       if (totalBags >= 1 && totalBags <= 4) {
         shippingCost = 1000; // $10.00 in cents
@@ -41,18 +47,15 @@ export async function POST(request: Request) {
       };
     }
 
-    // Map cart items to Stripe line items (price + quantity)
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = cartItems.map((item: any) => ({
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = cartItems.map(item => ({
       price: item.priceId,
       quantity: item.quantity,
     }));
 
-    // Add shipping line item if applicable
     if (shippingLineItem) {
       lineItems.push(shippingLineItem);
     }
 
-    // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
@@ -67,5 +70,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
   }
 }
+
 
 
