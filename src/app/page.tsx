@@ -101,7 +101,7 @@ export default function Home() {
   }
 
   return (
-    <main className="relative">
+    <main className="relative bg-white text-black dark:bg-black dark:text-white min-h-screen">
       <div className="flex justify-between items-center px-4 py-4">
         <h1 className="text-2xl font-bold">Coffee</h1>
         <button
@@ -112,11 +112,8 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Removed delivery method UI from here */}
-
       <ProductList products={products} onAddToCart={handleAddToCart} />
 
-      {/* Pass delivery method state and setter to Cart */}
       <Cart
         cart={cart}
         show={showCart}
