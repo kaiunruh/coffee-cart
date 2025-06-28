@@ -40,8 +40,17 @@ export default function ProductList({ products, onAddToCart }: ProductListProps)
             />
           )}
           <h2
-            className="font-semibold text-md mb-1 text-center dark:text-white text-black 
-                       whitespace-normal break-words"
+            className="
+              font-semibold 
+              text-center 
+              dark:text-white text-black 
+              whitespace-normal break-words
+              text-sm sm:text-md md:text-lg
+            "
+            style={{
+              wordBreak: 'break-word',
+              hyphens: 'auto',
+            }}
           >
             {product.name}
           </h2>
