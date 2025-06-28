@@ -40,8 +40,8 @@ export default function ProductList({ products, onAddToCart }: ProductListProps)
             />
           )}
           <h2
-            className="font-semibold text-md mb-1 text-center dark:text-white text-black break-words"
-            style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+            className="font-semibold text-md mb-1 text-center dark:text-white text-black 
+                       whitespace-normal break-words"
           >
             {product.name}
           </h2>
