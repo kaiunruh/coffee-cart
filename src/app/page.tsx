@@ -72,9 +72,7 @@ export default function Home() {
     try {
       const res = await fetch('/api/create-checkout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cartItems: cart.map((item) => ({
             priceId: item.priceId,
@@ -112,11 +110,13 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="px-4 py-2 text-black dark:text-white">
+      <div className="px-4 py-2">
         <p className="text-base">Browse our selection of fresh coffee below.</p>
       </div>
 
-      <ProductList products={products} onAddToCart={handleAddToCart} />
+      <div className="px-4 text-black dark:text-white">
+        <ProductList products={products} onAddToCart={handleAddToCart} />
+      </div>
 
       <Cart
         cart={cart}
@@ -132,3 +132,4 @@ export default function Home() {
     </main>
   );
 }
+
