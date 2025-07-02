@@ -8,6 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 type CartItem = {
   priceId: string;
   quantity: number;
+  name: string;  // added name to the type
 };
 
 export async function POST(request: Request) {
@@ -19,6 +20,11 @@ export async function POST(request: Request) {
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ error: 'No cart items provided' }, { status: 400 });
     }
+
+    // Build a human-readable summary of the cart
+    const cartSummary = cartItems
+      .map(item => `${item.name} x${item.quantity}`)
+      .join(', ');
 
     // Calculate total quantity for shipping cost
     const totalBags = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -62,6 +68,10 @@ export async function POST(request: Request) {
       line_items: lineItems,
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
+      metadata: {
+        delivery_method: deliveryMethod,
+        cart_summary: cartSummary
+      }
     });
 
     return NextResponse.json({ url: session.url });
@@ -70,6 +80,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
   }
 }
+
 
 
 

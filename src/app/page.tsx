@@ -78,6 +78,7 @@ export default function Home() {
           cartItems: cart.map((item) => ({
             priceId: item.priceId,
             quantity: item.quantity,
+            name: item.name,  // ✅ Added name for Stripe metadata
           })),
           deliveryMethod,
         }),
@@ -134,4 +135,3 @@ export default function Home() {
     </main>
   );
 }
-
