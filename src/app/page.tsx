@@ -24,7 +24,6 @@ export default function Home() {
   const [showCart, setShowCart] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState<'ship' | 'pickup'>('ship');
-  const [customerEmail, setCustomerEmail] = useState<string>(''); // ✅ added
 
   useEffect(() => {
     async function fetchProducts() {
@@ -68,10 +67,6 @@ export default function Home() {
 
   async function handleCheckout() {
     if (cart.length === 0) return;
-    if (!customerEmail) {
-      alert('Please enter your email before checkout.');
-      return;
-    }
 
     setIsCheckingOut(true);
 
@@ -83,10 +78,9 @@ export default function Home() {
           cartItems: cart.map((item) => ({
             priceId: item.priceId,
             quantity: item.quantity,
-            name: item.name, // ✅ for Stripe metadata
+            name: item.name, // still sending name for Stripe metadata
           })),
           deliveryMethod,
-          customerEmail, // ✅ pass email
         }),
       });
 
@@ -121,19 +115,6 @@ export default function Home() {
 
       <div className="px-4 py-2">
         <p className="text-base">Browse our selection of fresh coffee below.</p>
-        <div className="mt-2">
-          <label className="block text-sm font-medium mb-1" htmlFor="email">
-            Your Email (for receipt & order confirmation)
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={customerEmail}
-            onChange={(e) => setCustomerEmail(e.target.value)}
-            placeholder="you@example.com"
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
       </div>
 
       <div className="px-4 text-black dark:text-white">

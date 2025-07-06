@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 type CartItem = {
   priceId: string;
   quantity: number;
-  name: string;  // added name to the type
+  name: string;  // for metadata summary
 };
 
 export async function POST(request: Request) {
@@ -16,7 +16,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const cartItems: CartItem[] = body.cartItems;
     const deliveryMethod: 'ship' | 'pickup' = body.deliveryMethod;
-    const customerEmail: string | undefined = body.customerEmail; // pass from frontend if available
 
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ error: 'No cart items provided' }, { status: 400 });
@@ -69,14 +68,13 @@ export async function POST(request: Request) {
       line_items: lineItems,
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
-      customer_email: customerEmail, // optional, but will pre-fill email field
       shipping_address_collection: {
-        allowed_countries: ['US', 'CA'] // Add your allowed countries
+        allowed_countries: ['US', 'CA'], // adjust as needed
       },
       metadata: {
         delivery_method: deliveryMethod,
-        cart_summary: cartSummary
-      }
+        cart_summary: cartSummary,
+      },
     });
 
     return NextResponse.json({ url: session.url });
