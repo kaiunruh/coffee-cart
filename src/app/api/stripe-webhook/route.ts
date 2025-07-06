@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import getRawBody from 'raw-body';
 import { google } from 'googleapis';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -12,7 +11,7 @@ const PROJECT_ID = 'your-project-id'; // Replace with your Firebase project ID
 
 async function sendFcmMessage(fcmToken: string, title: string, body: string) {
   const auth = new google.auth.GoogleAuth({
-    keyFile: 'src/credentials/service-account.json', // path to your file
+    keyFile: 'src/credentials/service-account.json',
     scopes: SCOPES,
   });
 
@@ -47,23 +46,24 @@ export const config = {
 
 export async function POST(req: NextRequest) {
   const sig = req.headers.get('stripe-signature')!;
-  let event;
+  let event: Stripe.Event;
 
   try {
-    const rawBody = await getRawBody(req.body as any, {
-      length: req.headers.get('content-length'),
-      limit: '1mb',
-      encoding: 'utf-8',
-    });
+    const rawBody = await req.text(); // ✅ works in Next.js app router
 
     event = stripe.webhooks.constructEvent(
       rawBody,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (err: any) {
-    console.error('❌ Stripe webhook signature failed:', err.message);
-    return NextResponse.json({ error: err.message }, { status: 400 });
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('❌ Stripe webhook signature failed:', err.message);
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    } else {
+      console.error('❌ Unknown error in webhook:', err);
+      return NextResponse.json({ error: 'Unknown error' }, { status: 400 });
+    }
   }
 
   if (event.type === 'checkout.session.completed') {
