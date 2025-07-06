@@ -67,8 +67,12 @@ export async function POST(req: NextRequest) {
   }
 
   if (event.type === 'checkout.session.completed') {
-    // Extend session type to include optional shipping safely
-    const session = event.data.object as Stripe.Checkout.Session & {
+    const sessionId = (event.data.object as Stripe.Checkout.Session).id;
+
+    // Fetch full session from Stripe, expanding shipping
+    const session = (await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ['shipping'],
+    })) as Stripe.Checkout.Session & {
       shipping?: {
         name: string | null;
         address: {
@@ -78,7 +82,6 @@ export async function POST(req: NextRequest) {
           postal_code: string | null;
         } | null;
       } | null;
-      metadata?: { [key: string]: string };
     };
 
     const amount = (session.amount_total! / 100).toFixed(2);
