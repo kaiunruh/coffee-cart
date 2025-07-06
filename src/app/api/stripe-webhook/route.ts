@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
 
   try {
-    const rawBody = await req.text(); // ✅ works in Next.js app router
+    const rawBody = await req.text();
 
     event = stripe.webhooks.constructEvent(
       rawBody,
@@ -67,16 +67,39 @@ export async function POST(req: NextRequest) {
   }
 
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session;
+    // Extend session type to include optional shipping safely
+    const session = event.data.object as Stripe.Checkout.Session & {
+      shipping?: {
+        name: string | null;
+        address: {
+          line1: string | null;
+          city: string | null;
+          state: string | null;
+          postal_code: string | null;
+        } | null;
+      } | null;
+      metadata?: { [key: string]: string };
+    };
 
     const amount = (session.amount_total! / 100).toFixed(2);
     const currency = session.currency?.toUpperCase();
+    const deliveryMethod = session.metadata?.delivery_method || 'pickup';
+
+    let orderDetails = `Payment received: ${amount} ${currency}`;
+
+    if (deliveryMethod === 'ship' && session.shipping) {
+      const shipping = session.shipping;
+      const address = shipping.address;
+      orderDetails += `\nShipping to: ${shipping.name ?? ''}, ${address?.line1 ?? ''}, ${address?.city ?? ''}, ${address?.state ?? ''}, ${address?.postal_code ?? ''}`;
+    } else {
+      orderDetails += `\nThis is a pickup order.`;
+    }
 
     try {
       await sendFcmMessage(
         process.env.FCM_DEVICE_TOKEN!,
         '☕ New Coffee Order!',
-        `Payment received: ${amount} ${currency}`
+        orderDetails
       );
     } catch (err) {
       console.error('❌ Failed to send FCM:', err);
